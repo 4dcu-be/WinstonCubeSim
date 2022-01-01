@@ -38,9 +38,10 @@ def render_card(card: dict, current_player: int, show_hidden: bool = False):
 
 
 class CubeData:
-    def __init__(self, enable_ai=True):
+    def __init__(self, enable_ai: bool = True, draft_size: int = 90):
         self.cards = []
         self.shuffled_cards = []
+        self.unused_cards = []
         self.current_player = 0
         self.current_pile = 0
 
@@ -48,11 +49,13 @@ class CubeData:
 
         self.players = [[], []]
 
+        self.draft_size = draft_size
+
         self.enable_ai = enable_ai
 
     @property
     def cards_used(self) -> int:
-        return 90 - len(self.shuffled_cards)
+        return self.draft_size - len(self.shuffled_cards)
 
     def read_cube_csv(self, filename: str):
         """
@@ -79,11 +82,12 @@ class CubeData:
         for c in self.piles[self.current_pile]:
             c['seen'][self.current_player] = True
 
-    def print(self, show_hidden: bool = False):
+    def print(self, show_hidden: bool = False, show_unused: bool = False):
         """
         Prints the current game to the screen.
 
-        :param show_hidden: if true it will show cards that haven't been seen by the current player
+        :param show_hidden: if true it will show card names that haven't been seen by the current player
+        :param show_unused: if true cards not used this game will be shown
         """
         console.clear()
         console.print(f"Cards in Cube: {len(self.cards)}")
@@ -100,6 +104,11 @@ class CubeData:
             console.print(f"Player {i + 1} ({len(self.players[i])} cards)", style=style)
             console.print(f"Pile {i + 1}: {', '.join(player_cards)}", soft_wrap=True, style=style)
 
+        if show_unused:
+            unused_cards = [render_card(c, 0, show_hidden=True) for c in self.unused_cards]
+            console.print(f"Unused cards ({len(self.unused_cards)} cards)")
+            console.print(f"{', '.join(unused_cards)}", soft_wrap=True)
+
     def switch_player(self):
         """
         Switches the current player, in case the AI is enabled the AI-player's turn is started here
@@ -115,8 +124,6 @@ class CubeData:
         """
         if len(self.shuffled_cards) > 0:
             self.piles[self.current_pile] += [self.shuffled_cards.pop()]
-        else:
-            self.piles[self.current_pile] = []
 
     def skip(self):
         """
@@ -173,7 +180,10 @@ class CubeData:
         options = []
         for ix, stack in enumerate(self.piles):
             options += [ix] * len(stack)
-        options += [3]
+
+        # If there are cards in the main pile there is chance the AI will pick that
+        if 0 < len(self.shuffled_cards):
+            options += [3]
 
         selected_option = choice(options)
 
@@ -191,16 +201,21 @@ class CubeData:
             self.skip()
             self.skip()
 
-    def start_game(self):
-        """
-        Start the game
-        """
-        self.shuffled_cards = sample(self.cards, 90)
+    def shuffle_cards(self):
+        temp_pile = sample(self.cards, len(self.cards))
+        self.shuffled_cards = temp_pile[:self.draft_size]
+        self.unused_cards = temp_pile[self.draft_size:]
 
         for s in self.shuffled_cards:
             s['seen'] = [False, False]
 
+    def start_game(self):
+        """
+        Start the game
+        """
         self.current_player = 0
+
+        self.shuffle_cards()
 
         self.piles = [
             [self.shuffled_cards.pop()],
@@ -220,10 +235,10 @@ class CubeData:
             self.prompt_choice()
 
         # Show final output, reveal all cards from both players
-        self.print(show_hidden=True)
+        self.print(show_hidden=True, show_unused=True)
 
 
 if __name__ == '__main__':
-    cube_data = CubeData()
+    cube_data = CubeData(draft_size=90)
     cube_data.read_cube_csv(sys.argv[1])
     cube_data.start_game()
