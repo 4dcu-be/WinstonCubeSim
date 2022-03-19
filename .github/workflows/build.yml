@@ -1,4 +1,4 @@
-name: release
+name: Build Windows Executable
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
           python-version: '3.8' # Version range or exact version of a Python version to use, using SemVer's version range syntax
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
       - run: pip install - r requirements.txt
-      - run: pip install pyinstaller==4.1.0
+      - run: pip install pyinstaller==4.10
       - name: build
         run: pyinstaller main.spec --onefile
       - name: release
