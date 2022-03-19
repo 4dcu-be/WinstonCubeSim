@@ -41,3 +41,4 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./dist/CubeTester.exe
           asset_name: CubeTester.exe
+          asset_content_type:
