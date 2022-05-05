@@ -1,8 +1,11 @@
 from csv import DictReader as Reader
 from random import sample, choice
 from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
 import readchar
 from readchar.key import ENTER, SPACE
+from itertools import zip_longest
 
 console = Console()
 
@@ -30,7 +33,9 @@ color_to_rich = {
 
 def render_card(card: dict, current_player: int, show_hidden: bool = False):
     if show_hidden or 'seen' not in card.keys() or card['seen'][current_player]:
+
         color = color_to_rich[card['color']]
+
         return f"[{color}]{card['name']}[/{color}]"
     else:
         return "**hidden**"
@@ -51,6 +56,7 @@ class CubeData:
         self.draft_size = draft_size
 
         self.enable_ai = enable_ai
+        self.pile_width = 30
 
     @property
     def cards_used(self) -> int:
@@ -81,6 +87,50 @@ class CubeData:
         for c in self.piles[self.current_pile]:
             c['seen'][self.current_player] = True
 
+    def print_stats(self):
+        console.print(f"Cards in Cube: {len(self.cards)}")
+        console.print(f"Cards in main pile/used: {len(self.shuffled_cards)} / {self.cards_used}")
+
+        console.print("")
+
+    def print_piles(self, show_hidden: bool = False):
+        piles_table = Table(title=f"Current Pile : {self.current_pile+1}", title_style="bold")
+        piles_table.add_column("Pile 1", style="bold" if self.current_pile == 0 else "", min_width=self.pile_width, max_width=self.pile_width)
+        piles_table.add_column("Pile 2", style="bold" if self.current_pile == 1 else "", min_width=self.pile_width, max_width=self.pile_width)
+        piles_table.add_column("Pile 3", style="bold" if self.current_pile == 2 else "", min_width=self.pile_width, max_width=self.pile_width)
+
+        for c1, c2, c3 in zip_longest(*self.piles, fillvalue=None):
+            piles_table.add_row(render_card(c1, self.current_player, show_hidden=show_hidden) if c1 is not None else "",
+                                render_card(c2, self.current_player, show_hidden=show_hidden) if c2 is not None else "",
+                                render_card(c3, self.current_player, show_hidden=show_hidden) if c3 is not None else "")
+
+        console.print(piles_table)
+        console.print("")
+
+    def print_players(self, show_hidden: bool = False):
+        for i in range(2):
+
+            style = "bold" if self.current_player == i else ""
+            player_cards = [render_card(c, self.current_player, show_hidden=show_hidden) for c in self.players[i]]
+
+            panel_title = f"Player {i + 1} ({len(self.players[i])} cards)"
+            panel_content = ', '.join(player_cards)
+
+            panel = Panel(panel_content, title=panel_title, style=style, width=self.pile_width*3+10)
+
+            console.print(panel)
+            console.print("")
+
+    def print_unused_cards(self):
+        unused_cards = [render_card(c, 0, show_hidden=True) for c in self.unused_cards]
+
+        panel_title = f"Unused cards ({len(self.unused_cards)} cards)"
+        panel_content = ', '.join(unused_cards)
+
+        panel = Panel(panel_content, title=panel_title, width=self.pile_width * 3 + 10)
+
+        console.print(panel)
+
     def print(self, show_hidden: bool = False, show_unused: bool = False):
         """
         Prints the current game to the screen.
@@ -89,24 +139,15 @@ class CubeData:
         :param show_unused: if true cards not used this game will be shown
         """
         console.clear()
-        console.print(f"Cards in Cube: {len(self.cards)}")
-        console.print(f"Cards in main pile/used: {len(self.shuffled_cards)} / {self.cards_used}")
-        for i in range(3):
-            pile_cards = [render_card(c, self.current_player, show_hidden=show_hidden) for c in self.piles[i]]
-            console.print(f"Pile {i + 1}: {', '.join(pile_cards)}", style="bold" if self.current_pile == i else "")
-        console.print("")
 
-        for i in range(2):
-            style = "bold" if self.current_player == i else ""
-            player_cards = [render_card(c, self.current_player, show_hidden=show_hidden) for c in self.players[i]]
+        self.print_stats()
 
-            console.print(f"Player {i + 1} ({len(self.players[i])} cards)", style=style)
-            console.print(f"Pile {i + 1}: {', '.join(player_cards)}", soft_wrap=True, style=style)
+        self.print_piles(show_hidden=show_hidden)
+
+        self.print_players(show_hidden=show_hidden)
 
         if show_unused:
-            unused_cards = [render_card(c, 0, show_hidden=True) for c in self.unused_cards]
-            console.print(f"Unused cards ({len(self.unused_cards)} cards)")
-            console.print(f"{', '.join(unused_cards)}", soft_wrap=True)
+            self.print_unused_cards()
 
     def switch_player(self):
         """
@@ -163,7 +204,7 @@ class CubeData:
         Asks player to skip the current pile or take it.
         """
         console.print(f"\n\nCurrent player {self.current_player + 1}", style='bold')
-        console.print("Press [Space] to skip, [Enter] to take...")
+        console.print(f"Press [Space] to skip, [Enter] to take [bold]pile {self.current_pile+1}[/bold]...")
         selection = readchar.readkey()
         if selection == SPACE:
             self.skip()
