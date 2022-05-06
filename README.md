@@ -28,6 +28,9 @@ list of in the cube.
 python main.py ./data/PremodernSultaiWinston_v2.csv
 ```
 
+Windows users can also use the binary executable, which can be found in the releases.
+
+
 ## The controls
 
 You will see in bold the current pile and have the option to take (by pressing ENTER) or skip (pressing SPACE) that 
