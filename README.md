@@ -40,6 +40,17 @@ this simply picks a random pile though piles with more cards have a higher chanc
 Once the cube is empty, all cards picked by the human and AI player are shown along with the cards that weren't used
 in the draft (in case your cube exceeds the required number of cards or Winston draft (90 cards))
 
+## Information for developers
+
+### Creating a new release
+
+GitHub's tags are used to automatically create a new release (including building the windows binaries). To do this
+first tag the commit from which to create a new release and push this tag to GitHub using the commands below.
+
+```bash
+git tag -a "0.0.7" -m "Release description"
+git push origin --tags
+```
 
 [Winston Draft]: https://mtg.fandom.com/wiki/Winston_Draft
 [cube]: https://mtg.fandom.com/wiki/Cube_Draft#:~:text=Cube%20Draft%20is%20a%20casual,of%20playing%20a%20limited%20game.
