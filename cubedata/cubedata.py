@@ -181,12 +181,19 @@ class CubeData:
 
     def print_progress(self):
         total_cards_picked = sum([len(p) for p in self.players])
-        progress_bar = ProgressBar(total=90, completed=total_cards_picked, width=self.pile_width * 3 + 10)
+        progress_bar = ProgressBar(
+            total=90, completed=total_cards_picked, width=self.pile_width * 3 + 10
+        )
 
         console.print(progress_bar)
         console.print()
 
-    def print(self, show_hidden: bool = False, show_piles: bool = True, show_unused: bool = False):
+    def print(
+        self,
+        show_hidden: bool = False,
+        show_piles: bool = True,
+        show_unused: bool = False,
+    ):
         """
         Prints the current game to the screen.
 
@@ -305,7 +312,7 @@ class CubeData:
     def shuffle_cards(self):
         temp_pile = sample(self.cards, len(self.cards))
         self.shuffled_cards = temp_pile[: self.draft_size]
-        self.unused_cards = temp_pile[self.draft_size:]
+        self.unused_cards = temp_pile[self.draft_size :]
 
         for s in self.shuffled_cards:
             s["seen"] = [False, False]
