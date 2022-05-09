@@ -3,6 +3,8 @@ from random import sample, choice
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
+from rich.progress_bar import ProgressBar
+from rich import box
 import readchar
 from readchar.key import ENTER, SPACE
 from itertools import zip_longest
@@ -59,7 +61,7 @@ class CubeData:
         self.draft_size = draft_size
 
         self.enable_ai = enable_ai
-        self.pile_width = 30
+        self.pile_width = 40
 
     @property
     def cards_used(self) -> int:
@@ -123,6 +125,8 @@ class CubeData:
             max_width=self.pile_width,
         )
 
+        row_count = 0
+
         for c1, c2, c3 in zip_longest(*self.piles, fillvalue=None):
             piles_table.add_row(
                 render_card(c1, self.current_player, show_hidden=show_hidden)
@@ -135,6 +139,10 @@ class CubeData:
                 if c3 is not None
                 else "",
             )
+            row_count += 1
+
+        for _ in range(row_count, 11, 1):
+            piles_table.add_row(None, None, None)
 
         console.print(piles_table)
         console.print("")
@@ -171,18 +179,29 @@ class CubeData:
 
         console.print(panel)
 
-    def print(self, show_hidden: bool = False, show_unused: bool = False):
+    def print_progress(self):
+        total_cards_picked = sum([len(p) for p in self.players])
+        progress_bar = ProgressBar(total=90, completed=total_cards_picked, width=self.pile_width * 3 + 10)
+
+        console.print(progress_bar)
+        console.print()
+
+    def print(self, show_hidden: bool = False, show_piles: bool = True, show_unused: bool = False):
         """
         Prints the current game to the screen.
 
         :param show_hidden: if true it will show card names that haven't been seen by the current player
+        :param show_piles: if true will show piles of cards available, only hide after playing
         :param show_unused: if true cards not used this game will be shown
         """
         console.clear()
 
         self.print_stats()
 
-        self.print_piles(show_hidden=show_hidden)
+        self.print_progress()
+
+        if show_piles:
+            self.print_piles(show_hidden=show_hidden)
 
         self.print_players(show_hidden=show_hidden)
 
@@ -286,7 +305,7 @@ class CubeData:
     def shuffle_cards(self):
         temp_pile = sample(self.cards, len(self.cards))
         self.shuffled_cards = temp_pile[: self.draft_size]
-        self.unused_cards = temp_pile[self.draft_size :]
+        self.unused_cards = temp_pile[self.draft_size:]
 
         for s in self.shuffled_cards:
             s["seen"] = [False, False]
@@ -317,4 +336,4 @@ class CubeData:
             self.prompt_choice()
 
         # Show final output, reveal all cards from both players
-        self.print(show_hidden=True, show_unused=True)
+        self.print(show_hidden=True, show_unused=True, show_piles=False)
