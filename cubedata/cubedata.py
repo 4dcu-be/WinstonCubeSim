@@ -4,7 +4,6 @@ from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
 from rich.progress_bar import ProgressBar
-from rich import box
 import readchar
 from readchar.key import ENTER, SPACE
 from itertools import zip_longest
@@ -125,8 +124,6 @@ class CubeData:
             max_width=self.pile_width,
         )
 
-        row_count = 0
-
         for c1, c2, c3 in zip_longest(*self.piles, fillvalue=None):
             piles_table.add_row(
                 render_card(c1, self.current_player, show_hidden=show_hidden)
@@ -139,9 +136,8 @@ class CubeData:
                 if c3 is not None
                 else "",
             )
-            row_count += 1
 
-        for _ in range(row_count, 11, 1):
+        for _ in range(len(piles_table.rows), 10, 1):
             piles_table.add_row(None, None, None)
 
         console.print(piles_table)
@@ -262,7 +258,7 @@ class CubeData:
         """
         Asks player to skip the current pile or take it.
         """
-        console.print(f"\n\nCurrent player {self.current_player + 1}", style="bold")
+        console.print(f"Current player {self.current_player + 1}", style="bold")
         console.print(
             f"Press [Space] to skip, [Enter] to take [bold]pile {self.current_pile+1}[/bold]..."
         )
