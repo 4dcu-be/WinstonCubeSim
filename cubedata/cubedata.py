@@ -178,7 +178,7 @@ class CubeData:
     def print_progress(self):
         total_cards_picked = sum([len(p) for p in self.players])
         progress_bar = ProgressBar(
-            total=90, completed=total_cards_picked, width=self.pile_width * 3 + 10
+            total=self.draft_size, completed=total_cards_picked, width=self.pile_width * 3 + 10
         )
 
         console.print(progress_bar)
