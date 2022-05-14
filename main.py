@@ -1,4 +1,4 @@
-from cubedata import CubeData
+from cubedata import RichCubeData as CubeData
 import sys
 
 if __name__ == "__main__":
