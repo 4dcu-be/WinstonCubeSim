@@ -33,7 +33,6 @@ def render_card(card: dict, current_player: int, show_hidden: bool = False):
 
 
 class RichCubeData(CubeData):
-
     def print_stats(self):
         console.print(f"Cards in Cube: {len(self.cards)}")
         console.print(

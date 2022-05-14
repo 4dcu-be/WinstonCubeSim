@@ -2,7 +2,6 @@ from csv import DictReader as Reader
 from random import sample, choice
 
 
-
 def parse_color(color):
     if len(color) == 1:
         return color
