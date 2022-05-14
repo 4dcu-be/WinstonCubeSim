@@ -33,6 +33,10 @@ def render_card(card: dict, current_player: int, show_hidden: bool = False):
 
 
 class RichCubeData(CubeData):
+    def __init__(self, enable_ai: bool = True, draft_size: int = 90):
+        self.pile_width = 40
+        super().__init__(enable_ai, draft_size)
+
     def print_stats(self):
         console.print(f"Cards in Cube: {len(self.cards)}")
         console.print(

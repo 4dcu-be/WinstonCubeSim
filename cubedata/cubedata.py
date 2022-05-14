@@ -30,7 +30,6 @@ class CubeData:
         self.draft_size = draft_size
 
         self.enable_ai = enable_ai
-        self.pile_width = 40
 
     @property
     def cards_used(self) -> int:
