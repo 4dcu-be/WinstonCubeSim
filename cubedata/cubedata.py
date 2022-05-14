@@ -36,6 +36,10 @@ class CubeData:
     def cards_used(self) -> int:
         return self.draft_size - len(self.shuffled_cards)
 
+    @property
+    def card_count(self) -> int:
+        return len(self.cards)
+
     def read_cube_csv(self, filename: str):
         """
         Reads a CSV file with cards, lists from www.cubecobra.com can be exported in this format
