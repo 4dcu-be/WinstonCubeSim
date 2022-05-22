@@ -1,5 +1,7 @@
 from csv import DictReader as Reader
+import csv
 from random import sample, choice
+import urllib.request
 
 
 def parse_color(color):
@@ -38,6 +40,39 @@ class CubeData:
     @property
     def card_count(self) -> int:
         return len(self.cards)
+
+    @property
+    def piles_empty(self) -> bool:
+        return all([len(s) == 0 for s in self.piles])
+
+    @property
+    def main_pile_empty(self) -> bool:
+        return len(self.shuffled_cards) == 0
+
+    @property
+    def finished_draft(self) -> bool:
+        return self.main_pile_empty and self.piles_empty
+
+    def read_cube_url(self, url: str):
+        """
+        Reads a CSV file with cards, from a URL (e.g. from CubeCobra)
+
+        :param url: location of the CSV file
+        """
+        self.cards = []
+
+        response = urllib.request.urlopen(url)
+        lines = [line.decode('utf-8') for line in response.readlines()]
+        csvreader = Reader(lines, delimiter=",", quotechar='"')
+        for row in csvreader:
+            self.cards.append(
+                {
+                    "name": row["Name"],
+                    "mana_value": int(row["CMC"]),
+                    "type": row["Type"],
+                    "color": parse_color(row["Color"]),
+                }
+            )
 
     def read_cube_csv(self, filename: str):
         """
@@ -153,3 +188,19 @@ class CubeData:
 
         for s in self.shuffled_cards:
             s["seen"] = [False, False]
+
+    def init_game(self):
+        self.current_player = 0
+        self.current_pile = 0
+
+        self.shuffle_cards()
+
+        self.piles = [
+            [self.shuffled_cards.pop()],
+            [self.shuffled_cards.pop()],
+            [self.shuffled_cards.pop()],
+        ]
+
+        self.players = [[], []]
+
+        self.reveal_cards()

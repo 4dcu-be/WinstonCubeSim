@@ -30,6 +30,12 @@ list of in the cube.
 python main.py ./data/PremodernSultaiWinston_v2.csv
 ```
 
+or you can also load a file from a URL (this allows directly linking to a cube on [CubeCobra])
+
+```bash
+python main.py --url <URL_TO_CSV_FILE>
+```
+
 Windows users can also use the binary executable, which can be found in the releases.
 
 

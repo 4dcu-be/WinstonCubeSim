@@ -175,17 +175,7 @@ class RichCubeData(CubeData):
         """
         Start the game
         """
-        self.current_player = 0
-
-        self.shuffle_cards()
-
-        self.piles = [
-            [self.shuffled_cards.pop()],
-            [self.shuffled_cards.pop()],
-            [self.shuffled_cards.pop()],
-        ]
-
-        self.players = [[], []]
+        self.init_game()
 
         # While there are cards on the table, keep going
         while len(self.shuffled_cards) + sum([len(s) for s in self.piles]) > 0:
