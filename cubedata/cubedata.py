@@ -62,7 +62,7 @@ class CubeData:
         self.cards = []
 
         response = urllib.request.urlopen(url)
-        lines = [line.decode('utf-8') for line in response.readlines()]
+        lines = [line.decode("utf-8") for line in response.readlines()]
         csvreader = Reader(lines, delimiter=",", quotechar='"')
         for row in csvreader:
             self.cards.append(

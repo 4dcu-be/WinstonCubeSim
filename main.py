@@ -3,8 +3,8 @@ import click
 
 
 @click.command()
-@click.option('--url', is_flag=True)
-@click.argument('path', required=True, type=str)
+@click.option("--url", is_flag=True)
+@click.argument("path", required=True, type=str)
 def run(path, url):
     cube_data = CubeData(draft_size=90)
     if url:
